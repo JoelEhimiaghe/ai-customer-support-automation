@@ -23,9 +23,21 @@ This project demonstrates how AI and workflow automation can simplify that proce
 
 The automation follows a structured process from receiving a customer enquiry to generating a response, recording the interaction, and escalating complaints.
 
-### Workflow Overview
+### 1. Complete Workflow
 
 ![AI Customer Support Workflow](workflow-overview.png)
+
+### 2. Google Sheets Enquiry Records
+
+Customer enquiries, AI responses, categories, timestamps, and statuses are stored automatically.
+
+![Google Sheets Records](google-sheets-records.png)
+
+### 3. Complaint Email Notification
+
+When a complaint requires human attention, the workflow sends an email notification to the business.
+
+![Complaint Email Notification](complaint-email-notification.png)
 
 ## How It Works
 
@@ -60,6 +72,8 @@ ai-customer-support-automation/
 │
 ├── customer-support-workflow-public.json
 ├── workflow-overview.png
+├── google-sheets-records.png
+├── complaint-email-notification.png
 └── README.md
 ```
 
