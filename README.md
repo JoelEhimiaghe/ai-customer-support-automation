@@ -21,6 +21,14 @@ This project demonstrates how AI and workflow automation can simplify that proce
 
 ## Workflow Architecture
 
+The automation follows a structured process from receiving a customer enquiry to generating a response, recording the interaction, and escalating complaints.
+
+### Workflow Overview
+
+![AI Customer Support Workflow](workflow-overview.png)
+
+## How It Works
+
 1. Customer submits an enquiry through the n8n chat trigger.
 2. The workflow retrieves business information from Google Sheets.
 3. JavaScript processes the enquiry and checks for relevant knowledge base information.
@@ -41,9 +49,9 @@ This project demonstrates how AI and workflow automation can simplify that proce
 
 ## Human-in-the-Loop Support
 
-The system is designed to recognise complaints and flag them for human review rather than relying entirely on automated responses.
+The system recognises complaints and flags them for human review rather than relying entirely on automated responses.
 
-This helps businesses combine automation with human judgement.
+This combines automation with human judgement to support better customer service.
 
 ## Repository Structure
 
@@ -51,6 +59,7 @@ This helps businesses combine automation with human judgement.
 ai-customer-support-automation/
 │
 ├── customer-support-workflow-public.json
+├── workflow-overview.png
 └── README.md
 ```
 
@@ -79,4 +88,7 @@ Completed prototype. Demonstrated functionality includes AI-assisted enquiry han
 
 AI Automation Specialist
 
-- [LinkedIn](https://www.linkedin.com/in/joel-ehimiag
+- [LinkedIn](https://www.linkedin.com/in/joel-ehimiaghe-5542a1385)
+- [GitHub](https://github.com/JoelEhimiaghe)
+
+*Building smarter systems. Automating better workflows.*
