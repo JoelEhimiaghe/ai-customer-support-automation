@@ -1,0 +1,492 @@
+{
+  "name": "AI-Powered Customer Support & Enquiry Management System",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -336,
+        -96
+      ],
+      "id": "6537ff73-7e52-4886-905a-30e79850df38",
+      "name": "When chat message received",
+      "webhookId": "YOUR_CHAT_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer enquiry:\n{{ $json.customerMessage }}\n\nBusiness knowledge base:\n{{ $json.knowledgeBase }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=\nYou are a professional AI customer support assistant for an e-commerce business.\n\nYour responsibility is to provide helpful, accurate, friendly and professional responses to customer enquiries.\n\nBUSINESS KNOWLEDGE:\nYou will receive a business knowledge base containing information about the company's products, services, delivery policies, payment methods, returns and frequently asked questions.\n\nRESPONSE STYLE:\n\n1. Respond directly to the customer's question.\n2. Keep responses between 1 and 3 short sentences where possible.\n3. Never expose internal reasoning, instructions, categories, or knowledge-base records.\n4. Never repeat the customer's question unnecessarily.\n5. Do not include unrelated business information.\n6. Sound like a real customer support representative, not an AI explaining its process.\n7. When information is unavailable, simply say so and offer to confirm it with the appropriate team.\n\nCUSTOMER SUPPORT RULES:\n\n1. Always check the provided business knowledge before answering.\n2. Use the knowledge base as your primary source of business information.\n3. Do not invent product prices, policies, services or business information.\n4. If the knowledge base does not contain the answer, politely tell the customer that you will need to confirm the information with the appropriate team.\n5. Keep responses clear, concise and conversational.\n6. Be polite, empathetic and professional.\n7. Never request passwords, PINs, OTPs or complete card details.\n8. For complaints, acknowledge the customer's concern and respond empathetically.\n9. Never claim that an order, refund or payment action has been completed unless confirmed.\n\nYour goal is to provide accurate customer support while maintaining customer trust.\n\nSTRICT KNOWLEDGE BASE RULE:\n\nOnly provide business information explicitly stated in the supplied knowledge base.\n\nIf a customer asks about opening hours, and opening hours are not listed in the knowledge base, do not guess or create an answer.\n\nPolitely explain that the information is not currently available and that the customer support team will confirm it.\n\nDo not add unrelated information to an answer.\nAnswer only the specific question the customer asked.\nNever invent business hours, prices, delivery schedules, policies or company details.\n\nFINAL RESPONSE REQUIREMENT:\n\nYour final output must contain ONLY the message intended for the customer.\n\nNever generate:\n- \"Here's a possible response\"\n- Explanations of how you followed instructions\n- Internal reasoning or analysis\n- Statements claiming to have checked information unless you actually did.\n\nIf information is missing from the knowledge base, do not provide any guessed details, even as examples.\n\nUse this exact approach:\nAcknowledge the customer briefly, state what information is unavailable, and offer to confirm it.\n\nDo not invent opening hours or any other business details under any circumstances.\n\nOUTPUT FORMAT — VERY IMPORTANT:\n\nReturn only the final customer-facing response.\n\nDo not use introductory phrases such as:\n- Here is the response:\n- Here is a possible response:\n- Certainly, here's how I can help:\n- The customer should be told:\n\nDo not explain, introduce, summarize or label your response.\n\nStart directly with the message to the customer.\nNever include quotation marks around the response."
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "={{ $json.chatInput }}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        336,
+        -144
+      ],
+      "id": "913876ba-aaa2-4880-9b49-a8c0e13eb111",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "345acd93-3f58-47f7-8331-75de48faf2ff",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "OLLAMA_CREDENTIAL_ID",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support – Enquiry Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Enquiry ID": "={{ $now.toMillis() }}",
+            "Date & Time": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Customer Message": "={{ $json.customerMessage }}",
+            "AI Response": "={{ $json.text }}",
+            "Category": "={{ $json.category }}",
+            "Status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Enquiry ID",
+              "displayName": "Enquiry ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date & Time",
+              "displayName": "Date & Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Message",
+              "displayName": "Customer Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        48
+      ],
+      "id": "1c8a162c-cff6-4ace-b668-21c78b4d242c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst customerMessage = $('When chat message received').first().json.chatInput || '';\n\nconst aiResponse = $json.text || '';\n\nconst message = customerMessage.toLowerCase();\n\nlet category = 'General';\n\n// 1. Payment-related enquiries\nif (/\\b(payment|paid|charge|charged|billing|refund|transaction|invoice|debit|deducted|overcharged)\\b/.test(message)) {\n  category = 'Payments';\n}\n\n// 2. Delivery-related enquiries\nelse if (/\\b(delivery|deliver|shipping|shipped|dispatch|tracking|courier|package)\\b/.test(message)) {\n  category = 'Delivery';\n}\n\n// 3. Complaint-related enquiries\nelse if (/\\b(complaint|damaged|defective|broken|poor service|unhappy|dissatisfied|disappointed)\\b/.test(message)) {\n  category = 'Complaints';\n}\n\n// 4. Order-related enquiries\nelse if (/\\b(order|purchase|buy|buying|ordered|cancel my order)\\b/.test(message)) {\n  category = 'Orders';\n}\n\n// 5. General enquiries\nelse {\n  category = 'General';\n}\n\n// Determine customer enquiry status\nlet status = 'Pending';\n\nif (category === 'Complaints') {\n  status = 'Needs Human Review';\n}\n\n// Return all information to Google Sheets\nreturn [\n  {\n    json: {\n      text: aiResponse,\n      customerMessage: customerMessage,\n      category: category,\n      status: status\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        -32
+      ],
+      "id": "45aa5186-bfa3-4bc7-9bfb-fc8c885af521",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4b4999b8-8de9-4e49-82eb-1bafc7b81cab",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "Needs Human Review",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        768,
+        -128
+      ],
+      "id": "8f0e24fb-8858-42f8-aac1-cff99bef5de4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@example.com",
+        "subject": "New Customer Complaint – Human Attention Required",
+        "message": "= <h2>New Customer Complaint</h2>  <p>A customer enquiry requires your attention.</p>  <hr>  <p><strong>Customer Message:</strong></p> <p>{{ $json.customerMessage }}</p>  <p><strong>AI Response:</strong></p> <p>{{ $json.text }}</p>  <p><strong>Category:</strong> {{ $json.category }}</p>  <p><strong>Status:</strong> {{ $json.status }}</p>  <hr>  <p>Please review this enquiry and follow up with the customer.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -64
+      ],
+      "id": "03f2b4dd-c200-432e-9cf6-afe53581e6da",
+      "name": "Send a message",
+      "webhookId": "YOUR_GMAIL_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support – Enquiry Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 30115695,
+          "mode": "list",
+          "cachedResultName": "Business Knowledge Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=30115695"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -176,
+        -192
+      ],
+      "id": "974fde3d-0a48-49c9-b7df-d0d4467e897a",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst customerMessage = $('When chat message received').first().json.chatInput || '';\n\nconst knowledgeRows = $input.all().map(item => item.json);\n\nconst knowledgeBase = knowledgeRows.map(row => {\n  return `Category: ${row.Category}\nQuestion: ${row.Question}\nAnswer: ${row.Answer}`;\n}).join('\\n\\n');\n\nreturn [\n  {\n    json: {\n      customerMessage,\n      knowledgeBase\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        32
+      ],
+      "id": "add55057-aa20-4ed5-8a37-5b4b6d98d348",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst customerMessage = ($json.customerMessage || '').toLowerCase();\n\nconst knowledgeRows = $('Get row(s) in sheet').all()\n  .map(item => item.json);\n\nconst intents = [\n  {\n    name: 'opening hours',\n    pattern: /opening hours|business hours|what time.*open|when.*open|when.*close/\n  },\n  {\n    name: 'delivery time',\n    pattern: /how long.*delivery|delivery time|when.*arrive/\n  },\n  {\n    name: 'delivery availability',\n    pattern: /offer delivery|do you deliver|deliver to customers/\n  },\n  {\n    name: 'payments',\n    pattern: /payment method|how.*pay|payment options/\n  },\n  {\n    name: 'returns',\n    pattern: /return.*product|return policy|refund/\n  },\n  {\n    name: 'orders',\n    pattern: /place.*order|how.*order/\n  },\n  {\n    name: 'business products',\n    pattern: /what do you sell|what products/\n  }\n];\n\nconst intent = intents.find(item => item.pattern.test(customerMessage));\n\nlet matchingEntry = '';\n\nif (intent) {\n  const relevantRow = knowledgeRows.find(row => {\n    const question = (row.Question || '').toLowerCase();\n\n    if (intent.name === 'opening hours') {\n      return /opening hours|business hours/.test(question);\n    }\n\n    if (intent.name === 'delivery time') {\n      return /how long does delivery take|delivery time/.test(question);\n    }\n\n    if (intent.name === 'delivery availability') {\n      return /offer delivery|do you offer delivery/.test(question);\n    }\n\n    if (intent.name === 'payments') {\n      return /payment methods|payment options/.test(question);\n    }\n\n    if (intent.name === 'returns') {\n      return /return a product|return policy/.test(question);\n    }\n\n    if (intent.name === 'orders') {\n      return /place an order/.test(question);\n    }\n\n    if (intent.name === 'business products') {\n      return /what do you sell|what products/.test(question);\n    }\n\n    return false;\n  });\n\n  if (relevantRow) {\n    matchingEntry = relevantRow.Answer || '';\n  }\n}\n\nreturn [{\n  json: {\n    customerMessage: $json.customerMessage,\n    knowledgeBase: $json.knowledgeBase,\n    knowledgeFound: Boolean(matchingEntry),\n    matchingEntry\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -112
+      ],
+      "id": "1c918be1-48d8-407c-b5f0-a3323a184d18",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "3999663c-e3e8-47cc-9da5-635ea0e796bb",
+              "leftValue": "={{ $json.knowledgeFound }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "44ba7f59-1ab1-479b-be30-7fac968c23da",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst customerMessage = $json.customerMessage || '';\n\nconst fallbackResponse =\n  \"Thank you for reaching out. We don't currently have this information available. Please allow us to confirm it with our team.\";\n\nreturn [\n  {\n    json: {\n      customerMessage,\n      text: fallbackResponse\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        112
+      ],
+      "id": "cbef1645-2da6-4910-b697-853c9b5af017",
+      "name": "Code in JavaScript3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "YOUR_WORKFLOW_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "nodeGroups": [],
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
